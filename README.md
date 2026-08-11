@@ -270,6 +270,7 @@ Tests use an in-memory MongoDB instance via `mongodb-memory-server` — no real 
 
 ---
 
-## 📝 License
+# *Author*
 
-MIT
+* Jitendra Singh Chouhan (jitendra, jsinghchouhan971@gmail.com)
+  - [LinkedIn](https://www.linkedin.com/in/jitendra-singh-chouhan-309560316/)
