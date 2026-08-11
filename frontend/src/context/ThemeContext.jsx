@@ -1,7 +1,7 @@
 import { createContext, useEffect, useState } from 'react'
 
 const ThemeContext = createContext(null)
-const storageKey = 'draftlane-theme'
+const storageKey = 'avata-theme'
 
 function getInitialTheme() {
   const storedTheme = localStorage.getItem(storageKey)
