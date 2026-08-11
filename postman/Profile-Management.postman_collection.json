@@ -1,0 +1,332 @@
+{
+  "info": {
+    "_postman_id": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+    "name": "Profile Management API",
+    "description": "Complete API collection for the User Authentication & Profile Management System.\n\nBase URL: {{base_url}}\n\nSetup:\n1. Import the matching environment file: `Profile-Management.postman_environment.json`\n2. Select the **Profile Management - Local** environment from the top-right dropdown.\n3. Run **Register** or **Login** first — the JWT token is captured automatically.\n4. All protected routes will use the captured `{{token}}` variable.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [],
+  "item": [
+    {
+      "name": "Auth",
+      "description": "Authentication endpoints — register, login, and logout.",
+      "item": [
+        {
+          "name": "Register",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.token) {",
+                  "    pm.environment.set('token', json.token);",
+                  "    pm.environment.set('user_id', json.user.id);",
+                  "    console.log('Token captured from Register response.');",
+                  "}",
+                  "",
+                  "pm.test('Status is 201', () => pm.response.to.have.status(201));",
+                  "pm.test('Response has token', () => pm.expect(json.token).to.be.a('string'));",
+                  "pm.test('Response has user object', () => pm.expect(json.user).to.be.an('object'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane@example.com\",\n  \"password\": \"password123\",\n  \"bio\": \"Frontend developer who loves clean UIs.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register a new user account.\n\n**Validation rules:**\n- `name`: required, min 2 chars\n- `email`: required, valid format, must be unique\n- `password`: required, min 6 chars\n- `bio`: optional, max 180 chars\n\n**On success:** Returns 201 with a JWT token and user object. The token is automatically saved to `{{token}}`."
+          },
+          "response": [
+            {
+              "name": "201 Created",
+              "status": "Created",
+              "code": 201,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"User registered successfully\",\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"user\": {\n    \"id\": \"64a1b2c3d4e5f6a7b8c9d0e1\",\n    \"name\": \"Jane Doe\",\n    \"email\": \"jane@example.com\",\n    \"bio\": \"Frontend developer who loves clean UIs.\",\n    \"role\": \"user\",\n    \"createdAt\": \"2024-01-15T10:30:00.000Z\",\n    \"updatedAt\": \"2024-01-15T10:30:00.000Z\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "409 Conflict — Email already exists",
+              "status": "Conflict",
+              "code": 409,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"An account with this email address already exists\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json && json.token) {",
+                  "    pm.environment.set('token', json.token);",
+                  "    pm.environment.set('user_id', json.user.id);",
+                  "    console.log('Token captured from Login response.');",
+                  "}",
+                  "",
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "pm.test('Response has token', () => pm.expect(json.token).to.be.a('string'));",
+                  "pm.test('Response has user object', () => pm.expect(json.user).to.be.an('object'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"maya@example.com\",\n  \"password\": \"password123\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Authenticate with email and password.\n\n**On success:** Returns a JWT token. The token is automatically saved to `{{token}}` for use in protected routes.\n\n**Seed accounts (run `npm run seed` first):**\n- maya@example.com / password123\n- arjun@example.com / password123\n- admin@example.com / password123"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Login successful\",\n  \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...\",\n  \"user\": {\n    \"id\": \"64a1b2c3d4e5f6a7b8c9d0e1\",\n    \"name\": \"Maya Fernandes\",\n    \"email\": \"maya@example.com\",\n    \"bio\": \"Software engineer passionate about scalable backend microservices.\",\n    \"role\": \"user\",\n    \"createdAt\": \"2024-01-15T10:30:00.000Z\",\n    \"updatedAt\": \"2024-01-15T10:30:00.000Z\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "401 Unauthorized — Invalid credentials",
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Invalid email or password\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Success true', () => pm.expect(json.success).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Invalidates the session on the client side. Since JWT is stateless, token invalidation is handled client-side (token deletion from storage)."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Logged out successfully\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "Users",
+      "description": "User profile endpoints. All routes require a valid Bearer token.\n\n**Prerequisite:** Run Login or Register first to populate `{{token}}`.",
+      "item": [
+        {
+          "name": "Get Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Success true', () => pm.expect(json.success).to.be.true);",
+                  "pm.test('Has user object', () => pm.expect(json.user).to.be.an('object'));",
+                  "pm.test('No password in response', () => pm.expect(json.user).to.not.have.property('password'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "JWT access token. Automatically set after Login or Register."
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/users/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "profile"]
+            },
+            "description": "Retrieve the currently authenticated user's profile.\n\n**Requires:** `Authorization: Bearer {{token}}`\n\nThe `password` field is never included in the response."
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"user\": {\n    \"id\": \"64a1b2c3d4e5f6a7b8c9d0e1\",\n    \"name\": \"Maya Fernandes\",\n    \"email\": \"maya@example.com\",\n    \"bio\": \"Software engineer passionate about scalable backend microservices.\",\n    \"role\": \"user\",\n    \"createdAt\": \"2024-01-15T10:30:00.000Z\",\n    \"updatedAt\": \"2024-01-15T10:30:00.000Z\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "401 Unauthorized — Missing or invalid token",
+              "status": "Unauthorized",
+              "code": 401,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Not authorised, token missing or invalid\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Update Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Success true', () => pm.expect(json.success).to.be.true);",
+                  "pm.test('Has updated user', () => pm.expect(json.user).to.be.an('object'));"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "JWT access token."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Maya F.\",\n  \"bio\": \"Backend engineer & coffee enthusiast.\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "profile"]
+            },
+            "description": "Update `name` and/or `bio` for the authenticated user.\n\nBoth fields are optional — only send fields you want to change.\n\n**Requires:** `Authorization: Bearer {{token}}`"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Profile updated successfully\",\n  \"user\": {\n    \"id\": \"64a1b2c3d4e5f6a7b8c9d0e1\",\n    \"name\": \"Maya F.\",\n    \"email\": \"maya@example.com\",\n    \"bio\": \"Backend engineer & coffee enthusiast.\",\n    \"role\": \"user\",\n    \"createdAt\": \"2024-01-15T10:30:00.000Z\",\n    \"updatedAt\": \"2024-01-15T11:45:00.000Z\"\n  }\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        },
+        {
+          "name": "Change Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status is 200', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Success true', () => pm.expect(json.success).to.be.true);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}",
+                "description": "JWT access token."
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"currentPassword\": \"password123\",\n  \"newPassword\": \"newSecurePass456\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{base_url}}/api/users/change-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "users", "change-password"]
+            },
+            "description": "Change the authenticated user's password.\n\n**Requires:** `Authorization: Bearer {{token}}`\n\n**Rules:**\n- `currentPassword` must match the stored hash\n- `newPassword` must be at least 6 chars\n- `newPassword` must differ from `currentPassword`"
+          },
+          "response": [
+            {
+              "name": "200 OK",
+              "status": "OK",
+              "code": 200,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": true,\n  \"message\": \"Password changed successfully\"\n}",
+              "_postman_previewlanguage": "json"
+            },
+            {
+              "name": "400 Bad Request — Wrong current password",
+              "status": "Bad Request",
+              "code": 400,
+              "header": [{ "key": "Content-Type", "value": "application/json" }],
+              "body": "{\n  \"success\": false,\n  \"message\": \"Current password is incorrect\"\n}",
+              "_postman_previewlanguage": "json"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
