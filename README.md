@@ -1,4 +1,4 @@
-# User Authentication & Profile Management System
+# Avata - User Authentication & Profile Management System
 
 A full-stack web application providing secure user registration, login, and profile management — built with **React**, **Node.js**, **Express.js**, **MongoDB**, and **JWT**.
 
